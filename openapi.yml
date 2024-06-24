@@ -1,0 +1,422 @@
+openapi: 3.0.3
+info:
+  title: EasyShop Product API Defination
+  description: |
+        Using this OpenAPI specification, any consumer can undserstand the APIs that is exposed by EazyShop
+  termsOfService: https://easyshop.com/terms/
+  contact:
+    name: API Support
+    url: https://easyshop.com/support
+    email: support@easyshop.com
+  license:
+    name: EasyShop License
+    url: https://easyshop.com/licenses
+  version: 0.0.1
+servers: 
+  - url: https://dev.easyshop.com/v1
+    description: Development Server
+tags:
+  - name: Categories
+    description: Categories related operations
+  - name: Products
+    description: Products related operations
+  - name: Orders
+    description: Order related operations
+  - name: OneOfOrders
+    description: Order related operations
+  - name: anyOfOrders
+    description: Order related operations
+security:
+  - BasicAuth: []
+  - BearerAuth: []
+  - ApiKeyAuth: []
+  - oAuth2AuthCode: []
+paths: 
+  /categories: 
+    get:
+      operationId: getCategories
+      tags:
+        - Categories
+      summary: List All Categories
+      description: Return list of categories supported by EasyShop
+      security:
+        - BasicAuth: []
+      parameters:
+      - name: categoryId
+        in: query
+        schema:
+          type: integer
+          minimum: 100
+          maximum: 1000
+        example: 101
+      responses:
+        "200":
+          description: A List of categories
+          content:
+            applocation/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Categories"
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+  /categories/{categoryId}: 
+    get:
+      operationId: getCategoriesbyId
+      tags:
+        - Categories
+      summary: List All Categories
+      description: Return list of categories supported by EasyShop
+      security: []
+      parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 100
+          maximum: 1000
+        example: 102
+      responses:
+        "200":
+          description: A List of categories
+          content:
+            applocation/json:
+              schema:
+                $ref: "#/components/schemas/Categories"
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+  /products: 
+    get:
+      operationId: getProducts
+      tags:
+        - Products
+      summary: List All products
+      description: Return list of products supported by EasyShop
+      parameters:
+      - name: productId
+        in: query
+        schema:
+          type: integer
+          minimum: 100
+          maximum: 1000
+        example: 101
+        required: true 
+      responses:
+        "200":
+          description: A List of products
+          content:
+            applocation/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+  /products/{productId}: 
+    get:
+      operationId: getProductById
+      tags:
+        - Products
+      summary: List All products
+      description: Return list of products supported by EasyShop
+      parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: integer
+          minimum: 100
+          maximum: 1000
+        example: 102
+      responses:
+        "200":
+          description: A List of products
+          content:
+            applocation/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+  /order:
+    post:
+      operationId: saveOrder
+      tags:
+        - Orders
+      summary: Create Order
+      description: Post order detail to EasyShop for processing and shiping
+      requestBody:
+        content:
+          applocation/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Product"
+                address:
+                  $ref: "#/components/schemas/Address"
+      responses:
+        "201":
+          description: order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId: 
+                    type: integer
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+    put:
+      operationId: updateOrder
+      tags:
+        - Orders
+      summary: Update Order
+      description: Update order detail to EasyShop for processing and shiping
+      requestBody:
+        content:
+          applocation/json:
+            schema:
+              type: object
+              properties:
+                orderId:
+                  type: integer
+                products:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Product"
+                address:
+                  $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: order details updated successfully
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+    delete:
+      operationId: removeOrder
+      tags:
+        - Orders
+      summary: Delete Order
+      description: Delete order details from EasyShop 
+      parameters:
+      - $ref: "#/components/parameters/orderIdQueryParam"
+      responses:
+        "200":
+          description: order deleted successfully
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+    get:
+      operationId: getOrder
+      tags:
+        - Orders
+      summary: Get Order Details
+      description: Get order detail from EasyShop
+      parameters:
+      - $ref: "#/components/parameters/orderIdQueryParam"
+    
+      responses:
+        "200":
+          description: Fetch order details successfully
+          content:
+            applocation/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                  products:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                  address:
+                    $ref: "#/components/schemas/Address"
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+  /oneOforder:
+    post:
+      operationId: getOneOfOrder
+      tags:
+        - OneOfOrders
+      summary: Create Order
+      description: Post order detail to EasyShop for processing and shiping
+      requestBody:
+        content:
+          applocation/json:
+            schema:
+              type: object
+              properties:
+                products:
+                  type: object
+                  oneOf:
+                    - $ref: "#/components/schemas/Mobile"
+                    - $ref: "#/components/schemas/laptop"
+                address:
+                  $ref: "#/components/schemas/Address"
+              required:
+                - products
+                - address
+      responses:
+        "201":
+          description: order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId: 
+                    type: integer
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+  /anyOforder:
+    get:
+      operationId: getAnyOfOrder
+      tags:
+        - AnyOforder
+      summary: Get Order Details
+      description: Get order detail from EasyShop
+      parameters:
+      - $ref: "#/components/parameters/orderIdQueryParam"
+      - name: fetchType
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+            - summary
+            - details
+    
+      responses:
+        "200":
+          description: Fetch order details successfully
+          content:
+            applocation/json:
+              schema:
+                anyOf:
+                  -  $ref: "#/components/schemas/OrderSummary"
+                  -  $ref: "#/components/schemas/OrderAddress"
+        "500":
+          $ref: "#/components/schemas/InternalServerError"
+components:
+  parameters:
+    orderIdQueryParam:
+      name: orderId
+      in: query
+      required: true
+      schema:
+        type: integer
+  schemas:
+    Address:
+      type: object
+      properties:
+        addressline: 
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+          enum:
+            - California
+            - Texas
+            - Newyark
+        zipcode:
+          type: integer
+        isOfficeAddress: 
+          type: boolean
+      required: [addressline,city,state,zipcode]
+    Product:
+      type: object
+      properties:
+        orderId: 
+         type: integer
+        productId: 
+          type: integer
+        categoryName:
+         type: string
+         nullable: true
+        releaseDate:
+          type: string
+          format: date
+          readOnly: true
+        name:
+          type: string
+        price:
+          type: number
+        quantity:
+          type: integer
+      required: [orderId,productId,categoryName,name,price,quantity]
+    Categories:
+      type: object
+      properties:
+        categoryId: 
+          type: integer
+        categoryName:
+          type: string
+    Mobile:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+        - type: object
+          properties:
+            networkType:
+              type: string
+              enum:
+                - 3G
+                - 4G
+                - 5G
+          required: [networkType]    
+    laptop:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+        - type: object
+          properties:
+            ram:
+              type: string
+              enum:
+                - 4GB
+                - 8GB
+                - 16GB
+          required: [ram]    
+    OrderSummary:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+             $ref: "#/components/schemas/Product"
+          
+    OrderAddress:
+      type: object
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+             
+    InternalServerError:
+      description: | 
+        An error occured while processing request, Please contact at support@easyshop.com
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+    oAuth2AuthCode:
+      type: oauth2
+      flows: 
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/api/oauth.access
+          scopes:
+            read: Read only access
+            write: Read Write access
+            admin: Admin access
+      
+      
+      
+      
